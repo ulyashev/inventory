@@ -42,6 +42,27 @@ app.get("/api/product/:id", function(req, res){
   }
 });
 
+// add new product
+app.post("/api/products", jsonParser, function (req, res) {
+     
+  if(!req.body) return res.sendStatus(400);
+   
+  var Name = req.body.name;
+  var product = {name: Name};
+   
+  var data = fs.readFileSync("products.json"); // "utf8");
+  var products = JSON.parse(data);
+   
+  // max id
+  var id = Math.max.apply(Math, products.map(function(o){return o.id;}))
+  product.id = id+1;
+  // add product to array
+  products.push(product);
+  var data = JSON.stringify(products);
+  fs.writeFileSync("products.json", data);
+  res.send(products);
+});
+
   
 app.listen(3000, function(){
     console.log("Server run on 3000");
