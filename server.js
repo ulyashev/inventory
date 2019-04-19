@@ -63,7 +63,31 @@ app.post("/api/products", jsonParser, function (req, res) {
   res.send(products);
 });
 
-  
+// product delete
+app.delete("/api/products/:id", function(req, res){
+  var id = req.params.id;
+  var data = fs.readFileSync("products.json"); //, "utf8");
+  var products = JSON.parse(data);
+  var index = -1;
+  for(var i=0; i < products.length; i++){
+      if(products[i].id==id){
+          index=i;
+          break;
+      }
+  }
+  if(index > -1){
+      var product = products.splice(index, 1)[0];
+      var data = JSON.stringify(products);
+      fs.writeFileSync("products.json", data);
+      // deleted product send
+      res.send(product);
+  }
+  else{
+      res.status(404).send();
+      console.log('404')
+  }
+});
+
 app.listen(3000, function(){
     console.log("Server run on 3000");
 });
