@@ -3,17 +3,21 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var mongoose = require('mongoose');
+var uniqueValidator = require('mongoose-unique-validator');
 
 var app = express();
 var jsonParser = bodyParser.json();
  
 // app.use(express.static(__dirname + "/public"));
 
+
 var Schema = mongoose.Schema;
 var productSchema = new Schema({
   name: {
     type: String,
-    required: true
+    unique: true,
+    required: [true, "can't be blank"],
+    index: true 
   },
   qty: {
     type: Number,
@@ -21,6 +25,7 @@ var productSchema = new Schema({
   }
 });
 
+productSchema.plugin(uniqueValidator, {message: 'is already taken.'});
 var Product = mongoose.model("Product", productSchema);
 mongoose.connect(
   "mongodb://localhost:27017/productsdb",
@@ -41,7 +46,10 @@ app.post("/api/product", jsonParser, function (req, res) {
   const product = new Product({name: productName, qty: productQty});
   console.log(product);
   product.save(function(err){
-    if(err) return console.log(err);
+    if(err) {
+      console.log(err);
+      return res.status(500).send({ error: 'Name '+ productName + ' is already taken' });
+    }
     res.send(product);
   })
 });
