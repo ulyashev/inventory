@@ -1,15 +1,53 @@
-// const MongoClient    = require('mongodb').MongoClient;
-// const bodyParser     = require('body-parser');
+// const MongoClient = require('mongodb').MongoClient;
 
 var express = require("express");
 var bodyParser = require("body-parser");
-var fs = require("fs");
- 
+var mongoose = require('mongoose');
+
 var app = express();
 var jsonParser = bodyParser.json();
  
-app.use(express.static(__dirname + "/public"));
-// get list of products
+// app.use(express.static(__dirname + "/public"));
+
+var Schema = mongoose.Schema;
+var productSchema = new Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  qty: {
+    type: Number,
+    default: 0
+  }
+});
+
+var Product = mongoose.model("Product", productSchema);
+mongoose.connect(
+  "mongodb://localhost:27017/productsdb",
+  {useNewUrlParser: true}),
+  function(err){
+    if (err) return console.log(err);
+    app.listen(3000, function(){
+      console.log("server wait for connection");
+    })
+  }
+
+// add new product
+app.post("/api/product", jsonParser, function (req, res) {
+     
+  if(!req.body) return res.sendStatus(400);
+  const productName = req.body.name;
+  const productQty = req.body.qty;
+  const product = new Product({name: productName, qty: productQty});
+  console.log(product);
+  product.save(function(err){
+    if(err) return console.log(err);
+    res.send(product);
+  })
+});
+
+
+  // get list of products
 app.get("/api/products", function(req, res){
       
     var content = fs.readFileSync("products.json"); //, "utf8");
@@ -42,26 +80,6 @@ app.get("/api/product/:id", function(req, res){
   }
 });
 
-// add new product
-app.post("/api/products", jsonParser, function (req, res) {
-     
-  if(!req.body) return res.sendStatus(400);
-   
-  var Name = req.body.name;
-  var product = {name: Name};
-   
-  var data = fs.readFileSync("products.json"); // "utf8");
-  var products = JSON.parse(data);
-   
-  // max id
-  var id = Math.max.apply(Math, products.map(function(o){return o.id;}))
-  product.id = id+1;
-  // add product to array
-  products.push(product);
-  var data = JSON.stringify(products);
-  fs.writeFileSync("products.json", data);
-  res.send(products);
-});
 
 // product delete
 app.delete("/api/products/:id", function(req, res){
