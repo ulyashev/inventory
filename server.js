@@ -78,26 +78,11 @@ app.get("/api/products/:id", function(req, res){
 // product delete
 app.delete("/api/products/:id", function(req, res){
   var id = req.params.id;
-  var data = fs.readFileSync("products.json"); //, "utf8");
-  var products = JSON.parse(data);
-  var index = -1;
-  for(var i=0; i < products.length; i++){
-      if(products[i].id==id){
-          index=i;
-          break;
-      }
-  }
-  if(index > -1){
-      var product = products.splice(index, 1)[0];
-      var data = JSON.stringify(products);
-      fs.writeFileSync("products.json", data);
-      // deleted product send
-      res.send(product);
-  }
-  else{
-      res.status(404).send();
-      console.log('404')
-  }
+  Product.findByIdAndDelete(id, function(err, product){
+    if (err) return console.log(err);
+    res.send(product);
+  });
+
 });
 
 // product edit
