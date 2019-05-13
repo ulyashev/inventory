@@ -86,32 +86,19 @@ app.delete("/api/products/:id", function(req, res){
 });
 
 // product edit
-app.put("/api/products", jsonParser, function(req, res){
+app.put("/api/products/", jsonParser, function(req, res){
       
   if(!req.body) return res.sendStatus(400);
    
-  var Id = req.body.id;
-  var Name = req.body.name;
+  const Id = req.body.id;
+  const newName = req.body.name;
+  const newQty = req.body.qty;
+  const newProduct = {name: newName, qty: newQty}
+  Product.findByIdAndUpdate({_id: Id}, newProduct, {new: true}, function(err, product){
+    if (err) return console.log(err);
+    res.send(product);
+  });
    
-  var data = fs.readFileSync("products.json"); //, "utf8");
-  var products = JSON.parse(data);
-  var product;
-  for(var i=0; i < products.length; i++){
-      if(products[i].id == Id){
-          product = products[i];
-          break;
-      }
-  }
-  // product's data edit
-  if(product){
-      product.name = Name;
-      var data = JSON.stringify(products);
-      fs.writeFileSync("products.json", data);
-      res.send(product);
-  }
-  else{
-      res.status(404).send(user);
-  }
 });
 
 app.listen(3000, function(){
