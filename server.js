@@ -48,6 +48,7 @@ app.post("/api/product", jsonParser, function (req, res) {
   product.save(function(err){
     if(err) {
       console.log(err);
+      // err handler if already exists
       return res.status(500).send({ error: 'Name '+ productName + ' is already taken' });
     }
     res.send(product);
@@ -57,10 +58,10 @@ app.post("/api/product", jsonParser, function (req, res) {
 
   // get list of products
 app.get("/api/products", function(req, res){
-      
-    var content = fs.readFileSync("products.json"); //, "utf8");
-    var products = JSON.parse(content);
-    res.send(products);
+    Product.find({}, function(err, products){
+      if (err) return console.log(err);
+      res.send(products);
+    });
 });
 
 // get one product by id
