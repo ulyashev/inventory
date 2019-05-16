@@ -36,9 +36,10 @@ var productSchema = new Schema({
   
   var Product = mongoose.model("Product", productSchema);
   var User = mongoose.model('User', userSchema);
-  
+  var config = require('./config');
   mongoose.connect(
-    "mongodb://localhost:27017/productsdb",
+    // "mongodb://localhost:27017/productsdb",
+    config.database,
     {useNewUrlParser: true})
  module.exports.Product = Product;
  module.exports.User = User;

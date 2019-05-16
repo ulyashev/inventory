@@ -1,15 +1,33 @@
 var express = require("express");
 var bodyParser = require("body-parser");
+var session = require('express-session');
 var jwt    = require('jsonwebtoken');
+var mongoose = require('mongoose');
 
 var app = express();
 var jsonParser = bodyParser.json();
+var MongoStore = require('connect-mongo')(session);
  
 // app.use(express.static(__dirname + "/public"));
 
 var models = require("./models");
 var Product = models.Product;
 var User = models.User;
+var config = require('./config');
+
+// sessions
+app.use(
+  session({
+    // maxAge: 10 * 60 * 1000,
+    secret: config.secret,
+    resave: true,
+    saveUninitialized: true,
+    store: new MongoStore({
+      url: config.database,
+      autoRemove: 'disabled'
+    })
+  })
+);
 
 // add new product
 app.post("/api/product", jsonParser, function (req, res) {
@@ -74,7 +92,6 @@ app.put("/api/products/", jsonParser, function(req, res){
 
 // user registration
 app.post('/api/registration/', jsonParser, function(req, res) {
-  // if ((!))
   var userName = req.body.name;
   var userPswrd = req.body.password;
   if (userName === undefined || userPswrd === undefined) {
