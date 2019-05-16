@@ -1,9 +1,6 @@
-// const MongoClient = require('mongodb').MongoClient;
-
 var express = require("express");
 var bodyParser = require("body-parser");
-// var mongoose = require('mongoose');
-// var uniqueValidator = require('mongoose-unique-validator');
+var jwt    = require('jsonwebtoken');
 
 var app = express();
 var jsonParser = bodyParser.json();
@@ -12,15 +9,14 @@ var jsonParser = bodyParser.json();
 
 var models = require("./models");
 var Product = models.Product;
+var User = models.User;
 
 // add new product
 app.post("/api/product", jsonParser, function (req, res) {
-     
   if(!req.body) return res.sendStatus(400);
   const productName = req.body.name;
   const productQty = req.body.qty;
   const product = new Product({name: productName, qty: productQty});
-  console.log(product);
   product.save(function(err){
     if(err) {
       console.log(err);
@@ -31,8 +27,7 @@ app.post("/api/product", jsonParser, function (req, res) {
   })
 });
 
-
-  // get list of products
+// get list of products
 app.get("/api/products", function(req, res){
     Product.find({}, function(err, products){
       if (err) return console.log(err);
@@ -75,6 +70,24 @@ app.put("/api/products/", jsonParser, function(req, res){
     res.send(product);
   });
    
+});
+
+// user registration
+app.post('/api/registration/', jsonParser, function(req, res) {
+  // if ((!))
+  var userName = req.body.name;
+  var userPswrd = req.body.password;
+  if (userName === undefined || userPswrd === undefined) {
+    return res.status(400).send({error: "name and password can't be blank"})
+  };
+  var user = new User({name: userName, password: userPswrd});
+  user.save(function(err){
+    if (err) {
+      console.log(err);
+      return res.status(400).send({error: 'Name '+ userName + ' is already taken' });
+    }
+    res.send(user);
+  });
 });
 
 app.listen(3000, function(){
