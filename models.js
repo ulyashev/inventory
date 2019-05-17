@@ -16,8 +16,12 @@ var userSchema =  new Schema({
       type:String, 
       required: [true, "can't be blank"],
   }
-  // admin: Boolean 
 });
+
+// userSchema.methods.comparePassword = function(password){
+//   return bcrypt.compareSync(password, this.has_password);
+// };
+
 
 var productSchema = new Schema({
     name: {
