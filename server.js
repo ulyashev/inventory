@@ -1,17 +1,10 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var session = require('express-session');
-var jwt    = require('jsonwebtoken');
-var mongoose = require('mongoose');
 
 var app = express();
 var MongoStore = require('connect-mongo')(session);
  
-// app.use(express.static(__dirname + "/public"));
-
-var models = require("./models");
-var Product = models.Product;
-var User = models.User;
 var config = require('./config');
 
 // sessions
@@ -46,53 +39,12 @@ app.delete("/api/products/:id", ProductController.delete);
 // product edit
 app.put("/api/products/", ProductController.edit);
 
+const UserController = require('./controllers/userController');
 // user registration
-app.post('/api/registration/', function(req, res) {
-  var userName = req.body.name;
-  var userPswrd = req.body.password;
-  if (userName === undefined || userPswrd === undefined) {
-    return res.status(400).send({error: "name and password can't be blank"})
-  };
-  var user = new User({name: userName, password: userPswrd});
-  user.save(function(err){
-    if (err) {
-      console.log(err);
-      return res.status(400).send({error: 'Name '+ userName + ' is already taken' });
-    }
-    res.send(user);
-  });
-});
+app.post('/api/registration/', UserController.registration);
 
 //user login
-app.post('/api/login/', function(req, res) {
-  var userName = req.body.name;
-  var userPswrd = req.body.password;
-  if (userName === undefined || userPswrd === undefined) {
-    return res.status(400).send({error: "name and password can't be blank"})
-  };
-  User.findOne({name: userName}, function(err, user) {
-    if(err) {
-      console.log(err);
-      return res.status(400).send(err);
-    }
-    if (!user) {
-      res.json({ success: false, message: 'Authentication failed. User not found.' });
-    } else if (user) {
-      if (user.password != req.body.password) {
-        res.json({ success: false, message: 'Authentication failed. Wrong password.' });
-      } else {
-
-        var token = jwt.sign(user.name, config.secret, {
-        });
-        res.json({
-          success: true,
-          message: 'Enjoy your token!',
-          token: token
-        });
-      } 
-    }
-  });
-});
+app.post('/api/login/', UserController.login);
 
 app.listen(3000, function(){
     console.log("Server run on 3000");
