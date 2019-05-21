@@ -5,7 +5,6 @@ var jwt    = require('jsonwebtoken');
 var mongoose = require('mongoose');
 
 var app = express();
-var jsonParser = bodyParser.json();
 var MongoStore = require('connect-mongo')(session);
  
 // app.use(express.static(__dirname + "/public"));
@@ -28,70 +27,27 @@ app.use(
     })
   })
 );
+const jsonParser = bodyParser.json();
+app.use(jsonParser);
 
+const ProductController = require('./controllers/productController');
 // add new product
-app.post("/api/product", jsonParser, function (req, res) {
-  if(!req.body) return res.sendStatus(400);
-  const productName = req.body.name;
-  const productQty = req.body.qty;
-  const product = new Product({name: productName, qty: productQty});
-  product.save(function(err){
-    if(err) {
-      console.log(err);
-      // err handler if already exists
-      return res.status(400).send({ error: 'Name '+ productName + ' is already taken' });
-    }
-    res.send(product);
-  })
-});
+app.post("/api/product", ProductController.addProduct);
 
 // get list of products
-app.get("/api/products", function(req, res){
-    Product.find({}, function(err, products){
-      if (err) return console.log(err);
-      res.send(products);
-    });
-});
+app.get("/api/products", ProductController.productsList);
 
 // get one product by id
-app.get("/api/products/:id", function(req, res){
-  var id = req.params.id; // get id
-  console.log(id);
-  Product.findOne({_id:id}, function(err, product){
-    if (err) return console.log(err);
-    res.send(product);
-  });
-});
-
+app.get("/api/products/:id", ProductController.getById);
 
 // product delete
-app.delete("/api/products/:id", function(req, res){
-  var id = req.params.id;
-  Product.findByIdAndDelete(id, function(err, product){
-    if (err) return console.log(err);
-    res.send(product);
-  });
-
-});
+app.delete("/api/products/:id", ProductController.delete);
 
 // product edit
-app.put("/api/products/", jsonParser, function(req, res){
-      
-  if(!req.body) return res.sendStatus(400);
-   
-  const Id = req.body.id;
-  const newName = req.body.name;
-  const newQty = req.body.qty;
-  const newProduct = {name: newName, qty: newQty}
-  Product.findByIdAndUpdate({_id: Id}, newProduct, {new: true}, function(err, product){
-    if (err) return console.log(err);
-    res.send(product);
-  });
-   
-});
+app.put("/api/products/", ProductController.edit);
 
 // user registration
-app.post('/api/registration/', jsonParser, function(req, res) {
+app.post('/api/registration/', function(req, res) {
   var userName = req.body.name;
   var userPswrd = req.body.password;
   if (userName === undefined || userPswrd === undefined) {
@@ -108,7 +64,7 @@ app.post('/api/registration/', jsonParser, function(req, res) {
 });
 
 //user login
-app.post('/api/login/', jsonParser, function(req, res) {
+app.post('/api/login/', function(req, res) {
   var userName = req.body.name;
   var userPswrd = req.body.password;
   if (userName === undefined || userPswrd === undefined) {
