@@ -1,5 +1,6 @@
-var mongoose = require('mongoose');
-var uniqueValidator = require('mongoose-unique-validator');
+const mongoose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
+const crypto = require('crypto');
 
 var Schema = mongoose.Schema;
 
@@ -7,21 +8,38 @@ var Schema = mongoose.Schema;
 
 var userSchema =  new Schema({ 
   name: {
-      type:String, 
+      type: String, 
       unique: true,
       required: [true, "can't be blank"],
       index: true
   },
-  password: {
-      type:String, 
-      required: [true, "can't be blank"],
+  hashPassword: {
+      type: String, 
+      required: [true, "can't be blank"]
+  },
+  salt: {
+    type: String,
+    required: [true, "can't be blank"]
   }
 });
 
-// userSchema.methods.comparePassword = function(password){
+userSchema.methods.encryptPswrd = function(password){
+  return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
+};
+
+userSchema.virtual('password')
+  .set(function(password){
+    this._plainPassword = password;
+    this.salt = Math.random() + '';
+    this.hashPassword = this.encryptPswrd(password);
+  })
+  .get(function(){
+    return this._plainPassword;
+  });
+
+  // userSchema.methods.comparePassword = function(password){
 //   return bcrypt.compareSync(password, this.has_password);
 // };
-
 
 var productSchema = new Schema({
     name: {
@@ -42,8 +60,8 @@ var productSchema = new Schema({
   var User = mongoose.model('User', userSchema);
   var config = require('./config');
   mongoose.connect(
-    // "mongodb://localhost:27017/productsdb",
     config.database,
     {useNewUrlParser: true})
+
  module.exports.Product = Product;
  module.exports.User = User;
