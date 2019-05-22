@@ -1,8 +1,5 @@
-var jwt    = require('jsonwebtoken');
+const jwt    = require('jsonwebtoken');
 const config = require('../config');
-// var mongoose = require('mongoose');
-
-
 const User = require('../models').User;
 
 const registration = function(req, res) {
@@ -21,7 +18,7 @@ const registration = function(req, res) {
     });
   };
   
-  const login = function(req, res) {
+const login = function(req, res) {
     var userName = req.body.name;
     var userPswrd = req.body.password;
     if (userName === undefined || userPswrd === undefined) {
@@ -38,7 +35,6 @@ const registration = function(req, res) {
         if (user.password != req.body.password) {
           res.json({ success: false, message: 'Authentication failed. Wrong password.' });
         } else {
-  
           var token = jwt.sign(user.name, config.secret, {
           });
           res.json({
@@ -53,3 +49,4 @@ const registration = function(req, res) {
   
   module.exports.registration = registration;
   module.exports.login = login;
+  

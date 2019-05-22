@@ -31,10 +31,9 @@ const productById = function(req, res){
       res.send(product);
     });
   };
+
 const productEdit = function(req, res){
-      
     if(!req.body) return res.sendStatus(400);
-     
     const Id = req.body.id;
     const newName = req.body.name;
     const newQty = req.body.qty;
@@ -43,7 +42,6 @@ const productEdit = function(req, res){
       if (err) return console.log(err);
       res.send(product);
     });
-     
   };
   
 const productDelete = function(req, res){
@@ -52,7 +50,6 @@ const productDelete = function(req, res){
       if (err) return console.log(err);
       res.send(product);
     });
-  
   };
   
 module.exports.addProduct = addProduct;
