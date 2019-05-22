@@ -46,6 +46,6 @@ app.post('/api/registration/', UserController.registration);
 //user login
 app.post('/api/login/', UserController.login);
 
-app.listen(3000, function(){
+app.listen(config.port, function(){
     console.log("Server run on 3000");
 });
