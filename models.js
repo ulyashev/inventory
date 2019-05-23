@@ -26,6 +26,9 @@ var userSchema =  new Schema({
 userSchema.methods.encryptPswrd = function(password){
   return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
 };
+userSchema.methods.authenticate = function(plainText) {
+  return this.encryptPswrd(plainText) === this.hashPassword;
+};
 
 userSchema.virtual('password')
   .set(function(password){
@@ -36,10 +39,6 @@ userSchema.virtual('password')
   .get(function(){
     return this._plainPassword;
   });
-
-  // userSchema.methods.comparePassword = function(password){
-//   return bcrypt.compareSync(password, this.has_password);
-// };
 
 var productSchema = new Schema({
     name: {

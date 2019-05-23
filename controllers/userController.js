@@ -33,7 +33,7 @@ const login = function(req, res) {
       if (!user) {
         res.json({ success: false, message: 'Authentication failed. User not found.' });
       } else if (user) {
-        if (user.password != req.body.password) {
+        if (!user.authenticate(userPswrd)) {
           res.json({ success: false, message: 'Authentication failed. Wrong password.' });
         } else {
           var token = jwt.sign(user.name, config.secret, {
